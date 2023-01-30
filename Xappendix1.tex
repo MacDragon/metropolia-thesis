@@ -1,0 +1,126 @@
+% Appendix
+% And demonstrate text references and bibliography references in appendix
+
+\chapter{Running code over SWD}\label{appx:first}
+
+\begin{code}
+	\begin{minted}{c}
+bool probe_sendhelper( void )
+{
+	// send the recovery program
+	probe_write_dp(swdpreg_wo_SELECT, 0);
+	probe_write_dp(swdpreg_rw_CSR,
+	( 1 << ORUNDETECT )
+	//| ( 1 << READOK )
+	| ( 1 << CDBGPWRUPREQ )
+	| ( 1 << CSYSPWRUPREQ ) );
+	
+	uint32_t reg = 0;
+	probe_read_dp(swdpreg_rw_CSR, &reg);
+	if ( reg ==       ( 1 << ORUNDETECT )
+	| ( 1 << CDBGPWRUPREQ )
+	| ( 1 << CDBGPWRUPACK )
+	| ( 1 << CSYSPWRUPREQ ) 
+	| ( 1 << CSYSPWRUPACK ) )
+	{
+		printf("CSR ok\n");
+	}
+	
+	if ( ! probe_write_ap(ahbap_rw_CSW, 
+	( APSIZE32BIT << MEMAPSIZE )
+	| ( ADDRINCSINGLEEN << ADDRINC )  
+	| ( 1 << APDEVICEEN )
+	| ( 0b0100010 << APPROT )
+	| ( 1 << DBGSWENABLE) ) )
+	{
+		printf("Setup error 1\n"); 
+	}
+	
+	if ( ! probe_write_ap(ahbap_rw_TAR, DHCSR) ) // Debug Halting Control and Status Register
+	{
+		printf("Setup error 2\n");
+	}
+	if (! probe_write_ap(ahbap_rw_DRW, 0xA05F0003) ) // set debug enable and halt CPU.
+	{
+		printf("Setup error 3\n");
+	}
+	
+	printf("Send helper %dB\n", sizeof _Users_visa_Code_pico_picorecover_wipe_build_wipe_bin);
+	uint32_t start = time_us_32();
+	probe_write_memory(0x20000000, _Users_visa_Code_pico_picorecover_wipe_build_wipe_bin, sizeof _Users_visa_Code_pico_picorecover_wipe_build_wipe_bin);
+	printf("Send took %dms, Checking helper %dB\n", (time_us_32() - start)/1000, sizeof _Users_visa_Code_pico_picorecover_wipe_build_wipe_bin);
+	start = time_us_32();
+	
+	printf("Verify data:\n"); 
+	if ( !probe_verify_memory(0x20000000, _Users_visa_Code_pico_picorecover_wipe_build_wipe_bin, sizeof _Users_visa_Code_pico_picorecover_wipe_build_wipe_bin) )
+	{
+		printf("Verify failed, Bad data send\n"); 
+	}
+	
+	printf("Read took %dms\n", (time_us_32() - start)/1000);
+	
+	bool waiting = true;
+	uint32_t magiccheck = 0;
+	
+	uint8_t empty[12] = {0};
+	if ( ! probe_write_memory(0x20038000, empty, 12) )
+	{
+		printf("Clear error\n");
+	}
+	magiccheck = 0;
+	if ( ! probe_read_memory( 0x20038000, (uint8_t*)&magiccheck, sizeof magiccheck) || magiccheck != 0)
+	{
+		printf("Initial magic error\n");
+	}
+	
+	// start execution.
+	probe_write_ap(ahbap_rw_TAR, DCRDR); // Debug Core Register Data Register
+	probe_write_ap(ahbap_rw_DRW, 0x20000000);
+	probe_write_ap(ahbap_rw_TAR, DCRSR); // Debug Core Register Selector Register
+	probe_write_ap(ahbap_rw_DRW, 0x0001000F);
+	// DebugReturnAddress << REGSEL Sets execution address on leaving debug state.
+	//    1 << DCRSRWRITE
+	// bit 16 -- write access
+	// 0b1 0000 0000 0000 1111
+	probe_write_ap(ahbap_rw_TAR, DHCSR); // DHCSR	RW	0x00000000	Debug Halting Control and Status Register
+	probe_write_ap(ahbap_rw_DRW, 0xA05F0001); // remove halt bit.
+	
+	uint32_t magic = 0xDEADBEEF;
+	
+	printf("Waiting magic to confirm execution started\n");
+	
+	sleep_ms(50); // seems to sometimes need a small delay after execution starts to get a non error read?
+	
+	start = time_us_32();
+	do
+	{
+		magiccheck = 0;
+		if ( !probe_read_memory( 0x20038000, (uint8_t*)&magiccheck, sizeof magiccheck) )
+		{
+			printf("magic read error\n");
+			//return false;
+		}
+		if ( magiccheck == magic )
+		{
+			printf("Got confirmation: %08x\n", magiccheck);
+			return true;
+		}
+		sleep_ms(100);
+	} while ( time_us_32() - start < 3000*1000 );
+	
+	printf("Timeout waiting for magic.\n");
+	
+	return false;
+}
+	\end{minted}
+	\captionof{listing}{C Function to upload and execute code on target RP2040}
+	\label{code:probe_sendhelper}
+\end{code}
+
+The listed code demonstrated the steps needed to send and start arbitrary code executing on the target RP2040 platform,
+
+consisting of halting CPU, uploading and verifying the binary data to memory then proceeding to setup the cpu to restart execution from the start of the uploaded code at base RAM address.
+
+%\section{Appendix Section}
+
+%And you can cite \cite{tobias:book} stuff, it will go into the main bibliography.
