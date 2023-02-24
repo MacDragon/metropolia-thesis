@@ -1,0 +1,11 @@
+% Project Improvements remaining
+\clearpage%if the chapter heading starts close to bottom of the page, force a line break and remove the vertical vspace
+\vspace{21.5pt}
+\chapter{Improvements and Challenges}
+
+Whilst the software functionality attained the planned functionality there still remains hardware interface challenges that need to be solved to be a fully deployable solution.
+
+Specifically, there still needs to be a quick connection interface created to allow a recovery board to be quickly attached to the recovery module. Multiple ways of making this connection have been considered, the location of the debug points on the board revisions limits the possibilities, with the most likely potential method to investigate being some form of mounting clip using pogo pins to make contact with the debugging and power lines.
+To aid with a possible clip design, the current software design features a pair of interlock circuit pins that are required to be closed together before power is supplied to the target board. For simplicity of testing design, this control is currently implemented as controlling the power enable line of the voltage regulator on the target board, but should  be implemented as a mosfet controlled direct power line or similar so that no power is supplied to the target board till full interlock is achieved.
+
+Due to the test setup another potential is that the reliability of transmission over quick connect contactors has also not been established, which could potentially require more extensive error management. Though due to the relatively slow transmission speeds used in terms of possible SWD communication speeds, this is not anticipated to be a major concern, especially for simple recovery procedure where the helper application upload is verified before commencement and retried if necessary already and beyond this communication only involves writing small command packets to memory.

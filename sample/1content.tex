@@ -2,13 +2,13 @@
 \vspace{21.5pt}
 \chapter{Demonstration Content}\label{demo:content}
 
-This is a chapter to demonstrate some of the \gls{latex} commands\cite{RaspberryPiPico} that you can use to format your text. If you are new to it, \gls{latex} follows the \gls{wysiwym} idea similar to \gls{html} where you concentrate on the content and structure and leave the formatting and styling to the computer. You will write your content in a plain text file\footnote{which can not get corrupted and can be put under version control} and indicate the structure with commands (similar to \gls{html} tags) then compile it to generate the pdf. Check some books or tutorials such as \LaTeX{} Wikibooks\footnote{\url{https://en.wikibooks.org/wiki/LaTeX}} and try with an online editor such as Overleaf\footnote{\url{https://www.overleaf.com/}} so you do not need to install the compiler on your computer first.
+This is a chapter to demonstrate some of the \gls{test} commands\cite{RaspberryPiPico} that you can use to format your text. If you are new to it, \gls{latex} follows the \gls{test} idea similar to \gls{test} where you concentrate on the content and structure and leave the formatting and styling to the computer. You will write your content in a plain text file\footnote{which can not get corrupted and can be put under version control} and indicate the structure with commands (similar to \gls{test} tags) then compile it to generate the pdf. Check some books or tutorials such as \LaTeX{} Wikibooks\footnote{\url{https://en.wikibooks.org/wiki/LaTeX}} and try with an online editor such as Overleaf\footnote{\url{https://www.overleaf.com/}} so you do not need to install the compiler on your computer first.
 
 \section{Text, terms and abbreviations, figures, lists, etc.}
 
 In \gls{latex}, the \mintinline{tex}{\textbf{bold}} command produces \textbf{bold}, \mintinline{tex}{\textit{italic}}  \textit{italic} and nesting \mintinline{tex}{\textbf{\textit{bolditalic}}} generates \textbf{\textit{bolditalic}}. If the goal is to semantically mark importance, then use \emph{emphasize} with \mintinline{tex}{\emph{emphasize}} command. That would take care of cases such as \mintinline{tex}{\textit{text in italic with \emph{important stuff} inside}} which will compile to \textit{text in italic with \emph{important stuff} inside}. Note that a paragraph is added by forcing a new line.
 
-When one want to use an abbreviation or acronym like \gls{html} using the \mintinline{tex}{\gls{html}} command in \gls{latex}, the first time, it comes with it full version as can be seen in first paragraph of chapter \ref{demo:content} and for all next usages in its short form. Of course, when needed, the full version is available using e.g. the \mintinline{tex}{\acrlong{someID}} command. The defined terms like \gls{maths} use the same \mintinline{tex}{\gls{math}} \gls{latex} command. The Capitalized can be obtained with \mintinline{tex}{\Gls{id}}.
+When one want to use an abbreviation or acronym like \gls{test} using the \mintinline{tex}{\gls{test}} command in \gls{latex}, the first time, it comes with it full version as can be seen in first paragraph of chapter \ref{demo:content} and for all next usages in its short form. Of course, when needed, the full version is available using e.g. the \mintinline{tex}{\acrlong{someID}} command. The defined terms like \gls{test} use the same \mintinline{tex}{\gls{test}} \gls{test} command. The Capitalized can be obtained with \mintinline{tex}{\Gls{id}}.
 
 In this template, the abbreviations are defined in the \texttt{chapters/0abbr.tex} file with the \mintinline{tex}{\newacronym{id}{SHORT}{Long Form}} command. There can be many abbreviations and terms defined there, only the ones that are used in the text will be printed in the list of abbreviations (after table of content). And of course, it is the job of the compiler to sort them alphabetically. Should be avoided; but to have all the abbreviations and terms, even the non-used ones, use the \mintinline{tex}{\glsaddall} command before printing the list of abbreviations.
 
@@ -23,7 +23,7 @@ And let also try the figure (see figure \ref{fig:latex-cover}) and internal refe
 \begin{figure}[ht]
   \centering
   \AltText{meaningful alternative description (e.g. LaTeX, from typeseting to genrated pdf)}{\includegraphics[width=7.1cm]{LaTeX_cover}}
-  \caption{\gls{latex} cover image (Copied from \citeauthor{wikibooks:latex} (\citedate{wikibooks:latex}) \cite{wikibooks:latex}).}
+  \caption{\gls{test} cover image (Copied from \citeauthor{wikibooks:latex} (\citedate{wikibooks:latex}) \cite{wikibooks:latex}).}
   \label{fig:latex-cover}
 \end{figure}
 
@@ -33,7 +33,7 @@ According to the thesis guide, there must be a paragraph of text between figures
 
 Here is an example how to cite a bibliography entry \cite{kopka:guide} using the \\\mintinline{tex}{\cite{kopka:guide}} \gls{latex} command \cite[section 4.1]{tobias:book}. You might also like \mintinline{tex}{\citeauthor{some:id}} and \mintinline{tex}{\citedate{some:id}} ~as demonstrated in figure \ref{fig:latex-cover} caption and others like \mintinline{tex}{\citetitle{some:id}}, \mintinline{tex}{\citeurl{some:id}}, etc. To get very precise references, like chapter, section, pages number or range of a book, timing in video,\ldots that get indicated in square brackets in the command like \mintinline{tex}{\cite[04:01]{youtube:biblatex}} \cite[04:01]{youtube:biblatex}. Check the thesis guide, if the reference is only for the current sentence, the \mintinline{tex}{\cite{}} is placed before the dot, if the reference is for entire paragraph or group of sentences, then after the dot. If there is multiple sources for one sentence or paragraph, they have to be grouped together using the \mintinline{tex}{\cites[pp. 3, 5, 9--13]{some:id}[chap 4]{other:id}{more:id}{etc:id}} command. \cites[pp. 216--220]{kopka:guide}[chapter Special Pages, sections 3--4]{wikibooks:latex}[section 4.1]{tobias:book}[04:01--04:19]{youtube:biblatex}
 
-Like for abbreviations, the bibliography entries are stored in a separated \texttt{biblio.bib} file and only the \mintinline{tex}{\cite}d ones will be printed in the bibliography references. There are many entry types such as \mintinline{tex}{@book}, \mintinline{tex}{@article}, \mintinline{tex}{@online}, \mintinline{tex}{@video}, \mintinline{tex}{@thesis} and many more, e.g. see \cite[section 2.1]{ctan:biblatex}. In the worst case, there is the \mintinline{tex}{@misc} fallback entry type. \gls{latex} and biber compilers will take care of the numbering and sorting of the cited entries. Some tools help in managing the entries such as OttoBib\footnote{\url{http://www.ottobib.com/}} that will generate book entry from \gls{isbn} or ZoteroBib\footnote{\url{https://zbib.org/}} that can also take \gls{url}, \gls{doi}, etc. It is also possible to get the entry form the IEEE Xplore\footnote{\url{https://ieeexplore.ieee.org/}} or Google Scholar\footnote{\url{https://scholar.google.com/}} as shown in figure \ref{fig:bibtex}. Of course, even if using such tools can greatly help, manual check/edit might be required (e.g. missing author,\ldots).
+Like for abbreviations, the bibliography entries are stored in a separated \texttt{biblio.bib} file and only the \mintinline{tex}{\cite}d ones will be printed in the bibliography references. There are many entry types such as \mintinline{tex}{@book}, \mintinline{tex}{@article}, \mintinline{tex}{@online}, \mintinline{tex}{@video}, \mintinline{tex}{@thesis} and many more, e.g. see \cite[section 2.1]{ctan:biblatex}. In the worst case, there is the \mintinline{tex}{@misc} fallback entry type. \gls{test} and biber compilers will take care of the numbering and sorting of the cited entries. Some tools help in managing the entries such as OttoBib\footnote{\url{http://www.ottobib.com/}} that will generate book entry from \gls{test} or ZoteroBib\footnote{\url{https://zbib.org/}} that can also take \gls{test}, \gls{test}, etc. It is also possible to get the entry form the IEEE Xplore\footnote{\url{https://ieeexplore.ieee.org/}} or Google Scholar\footnote{\url{https://scholar.google.com/}} as shown in figure \ref{fig:bibtex}. Of course, even if using such tools can greatly help, manual check/edit might be required (e.g. missing author,\ldots).
 
 \begin{figure}[ht]
   \centering
@@ -53,7 +53,7 @@ Let's also try a long quote from the \citetitle{un:udhr}
 
 %TODO example with cite interview/conversation (unpublished or misc)
 %https://tex.stackexchange.com/questions/111363/exclude-fullcite-citation-from-bibliography
-\textit{Quisque augue} est, \textbf{elementum ac porttitor} non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec mattis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit.
+\textit{Quisque augue} est, \textbf{elementum ac porttitor} non, porttitor ac orci. Donec hendrerit, ligula ac luctus egestas, sem dolor pretium nunc, sed vehicula magna diam a massa. Donec hstis, arcu et tempor mattis, risus tortor ultrices metus, nec sodales sem dolor eu elit.
 
 Nullam egestas enim at odio pellentesque bibendum.
 
@@ -65,7 +65,7 @@ Työn aluksi rauta(II)ionit hapetetaan rauta(III)ioneiksi väkevällä vetyperok
 Rauta(III)ionit saostetaan emäksen (\ce{NH3}) avulla ja saadaan tuotteeksi kidevedellinen rauta(III)hydroksidi. Saatu saostuma pestään \ce{NH4NO3}:lla.
 \reaction{FeOOH $\cdot$ $x$(H2O)( \emph{s} ) ->T[$\Delta$900-1000\celsius] Fe2O3( \emph{s} )}
 
-\subsection{Subsection with \texorpdfstring{\Gls{maths}}{Mathematics}}%gls inside chapter/section/... will generate hyperref warning (link inside link in table of content), to avoid that, use the \texorpdfstring
+\subsection{Subsection with \texorpdfstring{\Gls{test}}{Mathematics}}%gls inside chapter/section/... will generate hyperref warning (link inside link in table of content), to avoid that, use the \texorpdfstring
 Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus. Morbi at dui non tortor pellentesque consequat non eget urna. Cras in sapien dui, a tincidunt velit. Tertiäärinen butyylikloridi reagoi veden kanssa oheisen reaktion mukaisesti:
 \reaction{(CH3)3CCl + 2H2O -> (CH3)3COH+H3O+ +Cl-}
 Kyseessä on ensimmäisen kertaluvun reaktio, joten reaktion nopeus on
@@ -110,24 +110,24 @@ if ($userName){
 }
 ?>
 \end{minted}
-\captionof{listing}{Descriptive Caption Text (e.g. this \gls{php} code do blah)}
+\captionof{listing}{Descriptive Caption Text (e.g. this \gls{fat} code do blah)}
   \label{code:testphp}
 \end{code}
 
 
-As see in listing \ref{code:testphp}, blah. It is also possible to have code inline, for example \mintinline{sql}{SELECT * FROM user WHERE age >= 18} that was \gls{sql}.
+%As see in listing \ref{code:testphp}, blah. It is also possible to have code inline, for example \mintinline{fat}{SELECT * FROM user WHERE age >= 18} that was \gls{fat}.
 The lisings \ref{code:htmlfull} and \ref{code:htmlpart} show how to load code from an external source file. In the case of listing \ref{code:htmlpart} it only take few line out of the source code file.
 
 \begin{code}
   \inputminted{html}{code/html5_sample.html}
-  \captionof{listing}{Some \gls{html} code}
+  \captionof{listing}{Some \gls{fat} code}
   \label{code:htmlfull}
 \end{code}
  Donec et sapien ac leo condimentum vulputate id et tellus. Maecenas hendrerit malesuada interdum. Aenean dignissim sem faucibus elit congue faucibus id non risus.
 
  \begin{code}
    \inputminted[firstline=3,lastline=6]{html}{code/html5_sample.html}
-   \captionof{listing}{The \mintinline{html}{<head>} section of an \gls{html} page}
+   \captionof{listing}{The \mintinline{html}{<head>} section of an \gls{fat} page}
   \label{code:htmlpart}
 \end{code}
 
