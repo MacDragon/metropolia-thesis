@@ -20,7 +20,7 @@ It would be convenient to be able touse one pico to do this to another, due to r
 Should auto detect correct type of pi board for ease of use, pico and pico w need different firmwares.
 
 Should work standalone and not require PC.
-
+\clearpage
 \section{Overview of Raspberry Pi Pico}
 
 \begin{figure}[ht]
@@ -32,7 +32,7 @@ Should work standalone and not require PC.
 
 The Raspberry Pi Pico \autoref{fig:picostock} is a compact \gls{mcu} development platform created by the Raspberry pi foundation, running a dual core \gls{arm} Cortex M0 at 133Mhz with a larger than typical 264kB inbuilt \gls{ram} and 2MB of \gls{spi} flash memory storage for the class of \gls{mcu}\cite{ltdBuyRaspberryPi}.
 
-\pagebreak
+\clearpage
 \section{Ways to access raspberry pi pico flash}
 
 There are a couple of potential ways to be able to access the flash memory on the pico to be able to alter or reflash it as desired.
@@ -43,10 +43,10 @@ This method could be used to run a \gls{ram} resident program via specific UF2 l
 
 But this method is cumbersome, as it cannot be fully automated due to the requirement of manual BOOTSEL enablement to enable whilst plugging in. There are ways to enter recovery mode without pressing BOOTSEL via \gls{usb} interface using picotool application that can make negotiate a pico running firmwares based on standard \gls{usb} stack to reboot into recovery mode\cite{picotool}, but this is inflexible and would not help recovering an application that immediately disables USB automatically at boot which is one of the primary requirements of the project.
 
-The other principle method of being able to arbitrarily access flash memory on pico is via the \gls{arm} \gls{swd} debug interface using the board accessible debug pads intended for direct programming and onchip debugging.
+The other principle method of being able to arbitrarily access flash memory on pico is via the \gls{arm} \gls{swd} debug interface using the board accessible debug pads intended for direct programming and onchip debugging\cite{ARMDebugInterface}.
 
 The \gls{swd} interface  is always available regardless of firmware setup, and allows full control of the chip thus making it possible to fully automate. The principle disadvantage of this approach is the less convenient physical access to the interface compared to connecting to a \gls{usb} host.
-\pagebreak
+\clearpage
 \section{SWD interface}
 The \gls{arm} \gls{swd} interface is an \gls{arm} microdevices created standard for all \gls{arm} Cortex CPU's using two wires for clock and signal, that allows bidirectional communication over a single signal wire and a variable host controlled signal speed.
 :
@@ -66,7 +66,7 @@ This can be done two different ways, direct instructions to perform requires act
 bofore
 
 For controlling the \gls{swd} interface there are multiple possible methods to consider,
-\pagebreak
+\clearpage
 \section{UF2 file format}
 UF2 is a file format created by Microsoft with the intention of having a simple universal file format for device firmware image updates, that is very easy to support with a minimal loader to manage the flashing on target device, including frequently via a \gls{usb} mass storage supporting bootloader that presents a virtual file system to the operating system via standard \gls{usb} mass storage protocol, so that special hardware and software is not needed for firmware updates.
 
@@ -77,7 +77,7 @@ The format was chosen by the pi foundation as the native image format for the pi
 
 The inbuilt bootloader uses the target address of the image to signify whether to load the data into ram for immiediete execution, or to flash and execute from \gls{spi}.
 
-\pagebreak
+\clearpage
 \section{USB Virtual Filesystem}
 Standalone \gls{swd} control is enough to be able to recover a file system or erase a board to rescue bootloader state, but in order to fully setup a pico from scratch a flash image to program is needed. This image could be included into the program as a binary include, but this makes updating cumbersome requiring recompiling and uploading a new full binary image to the recovery pico.
 
@@ -93,7 +93,7 @@ This header data is mostly static, barring changing addressing data, thus it is 
 
 All the UF2 header data barring addresses can be calculated at run time, so only the addresses for each flash block are required to be stored in a header, empty flash does not waste image space, nor non payload areas of the original uf2 image, thus virtually
 
-\pagebreak
+\clearpage
 \section{MicroPython Filesystem}
 One of the primary goals of the project is to recover a non booting MicroPython installation on a pico, this requires interfacing with the local file system in some way.
 
