@@ -3,23 +3,18 @@
 \vspace{21.5pt}
 \chapter{Project Specifications/Background}
 
-Metropolia computer labs are including new courses based on raspberry pi pico. boards, running micropython.
+To perform the needed recovery operations as described in the previous section the project has to be able to perform several operations.
 
-These boards need resetting between classes to the specified software needed.
+Both standard Raspberry Pi Pico and Raspberry Pi Pico W are likely to be used, so the project should be able to support both and automatically detect the attached target type.
 
-It is possible to setup the software in such a state that it will not communicate with a PC due to boot time runing scripts.
+These images have to be stored  on the recovery board, and a method to update the images.
 
-It should be possible to recover these boards to a bootable state without fully wiping them.
+Preferably this updating would be handled by the recovery board itself, without using some form of accompanying image rebuilder on a computer, in order to keep platform independence and simplicity of operation.
 
-Ideally, this should be done without any loss of data.
+The project should be able to interface with a target board to query file system status and perform file system operations to recover target board from potential non booting status, including zeroing out full file system to perform a quick reset, or reimage a full firmware to target board.
 
-It is also desirable to be able to quickly erase all data without wiping the software.
+This project is specified to be done using a Raspberry Pi Pico operating standalone without a computer for convenience to use existing resources, and as a potential demonstration of a use for a Pi Pico.
 
-It would be convenient to be able touse one pico to do this to another, due to ready availibility, and also as a demonstration of what can be done with one.
-
-Should auto detect correct type of pi board for ease of use, pico and pico w need different firmwares.
-
-Should work standalone and not require PC.
 \clearpage
 \section{Overview of Raspberry Pi Pico}
 
@@ -54,6 +49,14 @@ Typical \gls{swd} control speeds range from 4-25MHZ clock, though to achieve hig
 
 Communication is established with a reset sequence, that will always reset the debug units communication to a known start point so that connection can be established regardless of current state.
 
+Every transaction consists of a four phase process, first an idle bus is clocked, followed by a request header to signal read or write a register including a parity check, after this the host switches to listening on bus and clocks it further to check for a three byte acknowledgement reply to indicate whether the request was received, and whether it can be actioned, or if the debug unit is in fault state.
+
+If the acknowledgement is OK go ahead, then the next action is either clocking out the bus and reading the response, or switching back to control and writing out data packet.
+
+In the case of memory reads, the first read after a read request has to be ignored and discarded to give the debug unit time to retrieve the memory data, thus read cycle will always have an extra throwaway read at the end also.
+
+// insert SWD diagrams.
+
 \gls{arm} \gls{mcu}'s can also optionally support \gls{jtag} protocol debugging, using the same pins as \gls{swd}. For chips supporting both a handshake to establish the protocol being used is needed. But as the pico is an \gls{swd} only \gls{mcu}, this part of the connection protocol is not needed.
 
 Each CPU core has it's own debug unit, along with a third 'reset' unit that can be used to reset the whole \gls{mcu}
@@ -63,15 +66,20 @@ Each CPU core has it's own debug unit, along with a third 'reset' unit that can 
 \gls{swd} itself cannot directly access the flash memory on the pico, to do this the \gls{mcu} has to be instructed via memory access and process control to perform the accesses required.
 
 This can be done two different ways, direct instructions to perform requires actions can be written into memory
-bofore
+boforehand and jump to execute step by step direct flash programming, though this would be very inefficient due to amount of waiting for writes to complete.
+
+A simpler and more reliable method typically used for flash programming via debuggers is uploading a small stub flash loader application which which the debugger communicates via a defined shared memory space, where some form of flashing cache buffer can be filled for the stub to continue programming.
 
 For controlling the \gls{swd} interface there are multiple possible methods to consider,
 \clearpage
 \section{UF2 file format}
 UF2 is a file format created by Microsoft with the intention of having a simple universal file format for device firmware image updates, that is very easy to support with a minimal loader to manage the flashing on target device, including frequently via a \gls{usb} mass storage supporting bootloader that presents a virtual file system to the operating system via standard \gls{usb} mass storage protocol, so that special hardware and software is not needed for firmware updates.
 
+A Uf2 file is made up of 512byte blocks, each of which has a header specifying the blocks address in \gls{rom}, typically a family code to indicate what device the image is meant for, the relative number of specific 512byte block, and a total block count. 
 
-A Uf2 file is made up of 512byte blocks, each of which has a header specifying the blocks address in \gls{rom}, a family code to indicate what device the image is meant for, \gls{crc} check values, current and total block count. This is enough information for flashing software to know where to put each part of image as received, and keep track of progress in order to know full image has been received without an explicit end of transfer, which is key to being able to flash images via \gls{usb} mass storage filesystem write.
+UF2 contains a flag field to allow optional features in the format, including a checksum for the data and presence of family type instead of file size which is typically used instead of the defauly file size field, owing to this size data being calculable from the stored block data. Checksum data is not typically used, and thus not needed to be implemented.
+
+This is enough information for flashing software to know where to put each part of image as received, and keep track of progress in order to know full image has been received without an explicit end of transfer, which is key to being able to flash images via \gls{usb} mass storage filesystem write.
 
 The format was chosen by the pi foundation as the native image format for the pico due to this simplicity of use, and the pico recovery bootloader presents a \gls{usb} mass storage virtual \gls{fat} file system from it's \gls{rom} stored 16kB alongside \gls{usb} stack and \gls{rom} callable routines for functionality including \gls{spi} flashrom writing.
 

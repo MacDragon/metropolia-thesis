@@ -43,7 +43,6 @@
 % $ xelatex -shell-escape -8bit main
 % #And if still some citation or label warnings, compile once more
 % $ xelatex -shell-escape -8bit main
-
 %----------------------------------------------------------------------------------------
 %	THESIS INFO
 %----------------------------------------------------------------------------------------
@@ -79,7 +78,10 @@
 %----------------------------------------------------------------------------------------
 %	DOCUMENT STARTS HERE...
 %----------------------------------------------------------------------------------------
- \usepackage[utf8]{inputenc}
+\usepackage[utf8]{inputenc}
+\renewbibmacro*{urldate}{
+	(visited on \printfield{urlday}/\printfield{urlmonth}/\printfield{urlyear})
+}
 \begin{document}
 \IfLanguageName{finnish}{
 }{
