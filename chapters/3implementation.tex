@@ -4,7 +4,15 @@
 \chapter{Implementation}
 \section{Software  setup}
 
-First state of project was getting initial programming environment ready, consisting of rp2040 SDK, Arm GCC cross compiler and visual studio code with plugins for debugging and managing the rp2040 CMAKE build process, and a j-link SWD debugger to program and debug on the \gls{mcu} more flexibly than \gls{usb} UF2 flash programming. A logic analyser was also used in initial phases to help monitor the debug traffic for verification of handshake operations till communication was established between boards.
+First state of project was getting initial programming environment ready, consisting of rp2040 SDK, Arm GCC cross compiler and Visual Studio Code\autoref{fig:vscode} with plugins for debugging and managing the rp2040 CMAKE build process, and a j-link SWD debugger to program and debug on the \gls{mcu} more flexibly than \gls{usb} UF2 flash programming. A logic analyser was also used in initial phases to help monitor the debug traffic for verification of handshake operations till communication was established between boards.
+
+\begin{figure}[ht]
+	\centering
+	\AltText{Project loaded into Visual Studio Code}{\includegraphics[width=\textwidth]{vscode}}
+	\caption{Visual Studio Code}
+	\label{fig:vscode}
+\end{figure}
+
 \clearpage
 \section{Hardware setup}
 %
@@ -13,7 +21,7 @@ For first testing of compilation environment as initial proof of concept test be
 
 \begin{figure}[ht]
 	\centering
-	\AltText{Initial POC hardware setup showing direct soldered wiring between J-Link Edu and a Raspberry pi Pico}{\includegraphics[width=\textwidth]{initial POC setup}}
+	\AltText{Initial proof of concept hardware setup showing direct soldered wiring between J-Link Edu and a Raspberry pi Pico}{\includegraphics[width=\textwidth]{initial POC setup}}
 	\caption{initial POC setup}
 	\label{fig:InitialPOCwiring}
 \end{figure}
@@ -35,7 +43,7 @@ This was later expanded to include a Pimoroni display and buttons for a user int
 \begin{figure}[ht]
 	\centering
 	\AltText{Ki-Cad wiring schematic of POC setup}{\includegraphics[width=\textwidth]{POC wiring schematic}}
-	\caption{Wiring diagram for POC hardware setup}
+	\caption{Wiring diagram for bench test hardware setup}
 	\label{fig:FullPOCwiringDiagram}
 \end{figure}
 \clearpage
@@ -44,13 +52,13 @@ nInitial step was to establish \gls{swd} setup as lowest level critical componen
 
 Once handshake was established the most critical functions of memory write and read were implemented and verified to confirm successful control over \gls{swd}, 
 
-From there a small \gls{ram} resident test program to blink the onboard \gls{led} was created as a test case binary to to be write and executed from memory via \gls{swd} for a simple control verification, initially merely blinking \gls{led} to confirm code execution before building a shared memory structure for executing commands such as file recovery or flash programming/erasing.
+From there a small \gls{ram} resident test program to blink the onboard \gls{led} was created as a test case binary to be write and executed from memory via \gls{swd} for a simple control verification, initially merely blinking \gls{led} to confirm code execution before building a shared memory structure for executing commands such as file recovery or flash programming/erasing.
 
 This uses a \gls{magic} and runtime calculated CRC32 checksum for firmware data validation of transferred data during flashing process, and writing result codes back to memory that can be read by recovery device.
 
 Programming sequence example to bootstrap running code on the target can be found in Appendix 1.
 
-It was determined that 'bit banging' the \gls{swd} bus was sufficiently performant to not need a more complex implementation, the necessary 40kB helper image only takes 51ms to send over the bus which is inconsequential, and for  image upload operations the \gls{spi} flashing process is slower than the data upload  \gls{swd} speed, and most of the difference can be alleviated by using two data transfer locations to allow data upload whilst flashing is in progress in an interleaved write/upload operation alternating locations.
+It was determined that 'bit banging' the \gls{swd} bus was sufficiently performant to not need a more complex implementation, the necessary 40kB helper image only takes 51ms to send over the bus which is inconsequential, and for  image upload operations the \gls{spi} flashing process is slower than the data upload  \gls{swd} speed, and most of the difference can be alleviated by using two data transfer locations to allow data upload whilst flashing is progressing in an interleaved write/transfer operation alternating locations.
 
 This was measured to have approximately a 33\% speedup \autoref{table:flashspeed} in flashing versus using a single transfer location and waiting for write to complete before transferring new data.
 
@@ -61,17 +69,14 @@ This was measured to have approximately a 33\% speedup \autoref{table:flashspeed
 	
 	\begin{tabular}{|l|l|}
 		\hline
-		Flashing methodology & time for microPython 1.19 Image write    \\ \hline
-		One location & 5562ms \\ \hline
-		Dual location interleave & 4154ms \\ \hline
+		Flashing methodology & time for microPython 1.19 Image  \\ \hline
+		One queued & 5562ms \\ \hline
+		Dual queued interleave & 4154ms \\ \hline
 	\end{tabular}
 	\label{table:flashspeed}
 \end{table}
 
-Pictures of UI in operation
-
-To take control of target board, debug unit is first initialised to the rescue unit where a reset is initialised, before switching over to regular debug unit and halting processor to ensure that the system is at a known state before uploading the helper bi
-
+To take control of target board, debug unit is first initialised to the rescue unit where a reset is performed, before switching over to regular debug unit and halting processor to ensure that the system is at a known state before uploading the  included sub helper binary image to handle flashing and recovery operations.
 
 \clearpage
 \section{File system implementation}
@@ -115,6 +120,20 @@ This required cacheing more of the \gls{fat} table than previously needed, due t
 Another modification over TinyUF2 loader is for the virtual image to present the currently stored image on the presented file system in recreated form when \gls{usb} loading is active including the current stored image size instead of presenting full flash image as originally designed, allowing end user to retrieve the image back off device as well as replace the stored image with an updated one.
 
 \pagebreak
+\section{Testing and UI}
+
+For testing functionality, various likely scenarios were setup and verified to be repeatable.
+
+First tests consisted of setting up recovery scenarios on MicroPython via Thonny\cite{ThonnyPythonIDE}, creating startup python scripts that both block the USB port or just run, and performing a recovery procedure to verify that the file is renamed successfully, or deleted, if a previous recovery result is still present.
+
+Second tests verified that a populated file system could be wiped on an existing MicroPython install.
+
+Third tests verified loading of different UF2 firmware files to the recovery platform, and then re imaging a target pico with the loaded firmware.
+
+\clearpage
+\subsection{USB Loading}
+Figures \autoref{fig:picousbnodata} to \autoref{fig:usb_nodata_picow} show computer side of image loading in use, noting how the file system indicates which target device's firmware is being updated via use of dynamic text file name.
+
 \begin{figure}[ht]
 	\centering
 	\AltText{File system shown on file system with no image loaded to device}{\includegraphics[width=\textwidth]{usb_nodata_pico}}
@@ -136,65 +155,57 @@ Another modification over TinyUF2 loader is for the virtual image to present the
 	\label{fig:usb_nodata_picow}
 \end{figure}
 
+\clearpage
+\subsection{Recovery Process}
+Whilst \autoref{fig:disp_startup_empty} to \autoref{fig:disp_fs_recovered} show user interface on device during states of initial empty recovery device, during \gls{usb} firmware loading, and both file system recovery and re imaging target device.
+
 \begin{figure}[ht]
 	\centering
-	\AltText{Display startup no images stored}{\includegraphics[width=\textwidth]{disp_startup_empty}}
+	\AltText{Display startup no images stored}{\includegraphics[width=.7\textwidth]{disp_startup_empty}}
 	\caption{Display startup no images stored}
 	\label{fig:disp_startup_empty}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
-	\AltText{Display startup Pico image stored}{\includegraphics[width=\textwidth]{disp_startup_pico}}
+	\AltText{Display startup Pico image stored}{\includegraphics[width=.7\textwidth]{disp_startup_pico}}
 	\caption{Display startup Pico image stored}
 	\label{fig:disp_startup_pico}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
-	\AltText{Display showing recovery options menu}{\includegraphics[width=\textwidth]{disp_menu}}
+	\AltText{Display showing recovery options menu}{\includegraphics[width=.7\textwidth]{disp_menu}}
 	\caption{Display showing recovery options menu}
 	\label{fig:disp_menu}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
-	\AltText{Display showing usb image upload in progress at 58\%}{\includegraphics[width=\textwidth]{disp_usbload}}
+	\AltText{Display showing usb image upload in progress at 58\%}{\includegraphics[width=.7\textwidth]{disp_usbload}}
 	\caption{Display showing usb image upload in progress}
 	\label{fig:disp_usbload}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
-	\AltText{Display showing usb image having been uploaded}{\includegraphics[width=\textwidth]{disp_usbloaded}}
+	\AltText{Display showing usb image having been uploaded}{\includegraphics[width=.7\textwidth]{disp_usbloaded}}
 	\caption{Display showing usb image after successful upload}
 	\label{fig:disp_usbloaded}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
-	\AltText{Display showing image flashing in progress}{\includegraphics[width=\textwidth]{disp_flashwrite}}
+	\AltText{Display showing image flashing in progress}{\includegraphics[width=.7\textwidth]{disp_flashwrite}}
 	\caption{Display showing image flashing to target in progress}
 	\label{fig:disp_flashwrite}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
-	\AltText{Display showing filesystem recovered}{\includegraphics[width=\textwidth]{disp_fs_recovered}}
+	\AltText{Display showing filesystem recovered}{\includegraphics[width=.7\textwidth]{disp_fs_recovered}}
 	\caption{Display showing successfully recovered filesystem}
 	\label{fig:disp_fs_recovered}
 \end{figure}
-
-\clearpage
-\section{Testing}
-
-For testing functionality, various likely scenarios were setup and verified to be repeatable.
-
-First tests consisted of setting up recovery scenarios on MicroPython via Thonny\cite{ThonnyPythonIDE}, creating startup python scripts that both block the USB port or just run, and performing a recovery procedure to verify that the file is renamed successfully, or deleted, if a previous recovery result is still present.
-
-Second tests verified that a populated file system could be wiped on an existing MicroPython install.
-
-Third tests verified loading of different uf2 firmware files to the recovery platform, and then reflashing a target pico with the loaded firmware.
-
 
 

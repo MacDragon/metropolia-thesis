@@ -16,16 +16,47 @@ The project should be able to interface with a target board to query file system
 This project is specified to be done using a Raspberry Pi Pico operating standalone without a computer for convenience to use existing resources, and as a potential demonstration of a use for a Pi Pico.
 
 \clearpage
-\section{Overview of Raspberry Pi Pico}
+\section{Hardware}
+
+\subsection{Overview of Raspberry Pi Pico}
 
 \begin{figure}[ht]
 	\centering
 	\AltText{Stock photo of Raspberry Pi Pico}{\includegraphics[width=\textwidth]{pico-rp2040}}
-	\caption{Stock photo of Raspberry Pi Pico}
+	\caption{Stock photo of Raspberry Pi Pico\cite{ltdBuyRaspberryPi}}
 	\label{fig:picostock}
 \end{figure}
 
+The principle target recovery baord and project board are both a Raspberry Pi Pico.
+
 The Raspberry Pi Pico \autoref{fig:picostock} is a compact \gls{mcu} development platform created by the Raspberry pi foundation, running a dual core \gls{arm} Cortex M0 at 133Mhz with a larger than typical 264kB inbuilt \gls{ram} and 2MB of \gls{spi} flash memory storage for the class of \gls{mcu}\cite{ltdBuyRaspberryPi}.
+
+The Pico is capable of having software programmed to it via inbuilt ROM USB flasher using a UF2 image or via \gls{swd} interface.
+
+\subsection{Pico Display Pack}
+A Pimoroni Pico DIsplay Pack\autoref{fig:picodisplaypack} was selected as the user interface hardware for development due to availability on hand, but is a non critical component that could be swapped for other displays and input with relatively minor adjustment.
+
+The Display Pack features four tactile buttons and a 1.14” 240x135 pixel IPS LCD screen to allow user feedback and input.
+
+\begin{figure}[ht]
+	\centering
+	\AltText{Stock photo of Pimoroni Pico DIsplay Pack}{\includegraphics[width=.66\textwidth]{picodisplaypack}}
+	\caption{Stock photo of Pimoroni Pico DIsplay Pack\cite{PicoDisplayPack}}
+	\label{fig:picodisplaypack}
+\end{figure}
+	
+\clearpage
+\subsection{J-Link EDU Mini}
+For debugging and rapid prototyping a J-Link EDU Mini\cite{JLinkEDUMini}\autoref{fig:jlinkedumini} was used as the hardware debugger for project to enable.
+
+This is a \gls{usb} compact hardware debugger for embedded platforms to provide direct flashing and debug access to the Pi Pico to provide a more convenient development environment with one click compiling and target flashing.
+
+\begin{figure}[ht]
+	\centering
+	\AltText{Stock photo of J-Link EDU Mini}{\includegraphics[width=.66\textwidth]{jlinkedumini}}
+	\caption{Stock photo of J-Link EDU mini\cite{JLinkEDUMini}}
+	\label{fig:jlinkedumini}
+\end{figure}
 
 \clearpage
 \section{Ways to access raspberry pi pico flash}
@@ -44,18 +75,26 @@ The \gls{swd} interface  is always available regardless of firmware setup, and a
 \clearpage
 \section{SWD interface}
 The \gls{arm} \gls{swd} interface is an \gls{arm} microdevices created standard for all \gls{arm} Cortex CPU's using two wires for clock and signal, that allows bidirectional communication over a single signal wire and a variable host controlled signal speed.
-:
+
 Typical \gls{swd} control speeds range from 4-25MHZ clock, though to achieve high clock rates typically seperate hardware such an \gls{fpga} programmed for dedicated signal control is used. Bue due to the debugger controlled clock, timing is not critical and can be flexible allowing a more simplistic 'bit banging' approach to be used from any GPIO interface, though more refined methods utilising peripheral hardware inside an \gls{mcu} can be possible, such as \gls{spi} controller, or in the case of the pi pico it has a programmable io interface that can be utilised for \gls{swd} as utilised in the pi foundations pi pico based debug probe. un
 
-Communication is established with a reset sequence, that will always reset the debug units communication to a known start point so that connection can be established regardless of current state.
+Communication with the debug unit is first established with a reset sequence, which will always reset the debug unit to a known starting state so that connection can be established regardless of existing state.
 
-Every transaction consists of a four phase process, first an idle bus is clocked, followed by a request header to signal read or write a register including a parity check, after this the host switches to listening on bus and clocks it further to check for a three byte acknowledgement reply to indicate whether the request was received, and whether it can be actioned, or if the debug unit is in fault state.
+Every transaction consists of a multiple phase process. First a request header to signal read or write a register including contained command validation parity check is clocked out onto the \gls{swd} I/O line, after which the host switches to reading the I/O line and clocks in three bytes to check for an acknowledgement reply indicating whether the request was received, debug unit is busy or can action the request, or if the debug unit is in fault state.
 
-If the acknowledgement is OK go ahead, then the next action is either clocking out the bus and reading the response, or switching back to control and writing out data packet.
+If the acknowledgement is an all OK, then the next action is either clocking in the bus for length of data to read response, or switching back to clocking out the  transmitted data packet.
 
-In the case of memory reads, the first read after a read request has to be ignored and discarded to give the debug unit time to retrieve the memory data, thus read cycle will always have an extra throwaway read at the end also.
+In the case of \gls{ap} memory reads, the first read after a read request has to be ignored and discarded to give the debug unit time to retrieve the memory data, thus read cycle will always have an extra throwaway read at the end also.
 
-// insert SWD diagrams.
+After a data transfer if no other command is to be immediately processed an extra 8 clock cycle idle has to be continued post transfer to allow the debug unit to process.
+
+\begin{figure}[ht]
+	\centering
+	\AltText{Diagram of ARM SWD memory write operation}{\includegraphics[width=\textwidth]{armswdwrite}}
+	\caption{Diagram of SWD memory write\cite{ARMDebugInterface}}
+	\label{fig:armswdwrite}
+\end{figure}
+\clearpage
 
 \gls{arm} \gls{mcu}'s can also optionally support \gls{jtag} protocol debugging, using the same pins as \gls{swd}. For chips supporting both a handshake to establish the protocol being used is needed. But as the pico is an \gls{swd} only \gls{mcu}, this part of the connection protocol is not needed.
 
@@ -70,7 +109,15 @@ boforehand and jump to execute step by step direct flash programming, though thi
 
 A simpler and more reliable method typically used for flash programming via debuggers is uploading a small stub flash loader application which which the debugger communicates via a defined shared memory space, where some form of flashing cache buffer can be filled for the stub to continue programming.
 
-For controlling the \gls{swd} interface there are multiple possible methods to consider,
+For controlling the \gls{swd} interface there are multiple possible methods to consider. 
+
+So called 'bit banging' \gls{gpio} signals utilising \gls{arm} code to control signal lines via direct access which is effectively entirely non hardware dependant.
+
+Using a programmable I/O module in the Pico which allows a lower level clock accurate control of \gls{gpio} on the device, an example implementation of which available in the official Raspberry Pi Pico debugger PicoProbe\cite{Picoprobe2023} project.
+
+It also appears to be potentially possible to utilise \gls{spi} peripheral to perform \gls{swd} transactions, though this was deemed unnecessarily complicated to investigate as a potential solution\cite{OpenOCDRaspberryPi}.
+
+Due to \gls{swd}'s use of host device clock signal and no tight requirements for it's running, the simpler 'bit banging' was implemented as first proof of concept, setting the pico clock
 \clearpage
 \section{UF2 file format}
 UF2 is a file format created by Microsoft with the intention of having a simple universal file format for device firmware image updates, that is very easy to support with a minimal loader to manage the flashing on target device, including frequently via a \gls{usb} mass storage supporting bootloader that presents a virtual file system to the operating system via standard \gls{usb} mass storage protocol, so that special hardware and software is not needed for firmware updates.
