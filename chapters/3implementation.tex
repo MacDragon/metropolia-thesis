@@ -31,7 +31,7 @@ Segger RTT\cite{JLinkRTTReal} is used for debug console access during testing to
 In the final test setup a jumper cable is used to simulate the closing of a mounting interface interlock to similate plugging and unplugging target board without physically removing jumper wires from bench setup.
 
 \pagebreak
-This was later expanded to include a Pimoroni display and buttons for a user interface, and second Pi Pico as flashing target \autoref{fig:FullPOCwiring}, wiring diagram \autoref{fig:FullPOCwiringDiagram}
+This was later expanded to include a Pimoroni display and buttons for a user interface, and second Pi Pico as flashing target \autoref{fig:FullPOCwiring}, with wiring diagram as shown in \autoref{fig:FullPOCwiringDiagram}
 
 \begin{figure}[ht]
 	\centering
@@ -48,7 +48,7 @@ This was later expanded to include a Pimoroni display and buttons for a user int
 \end{figure}
 \clearpage
 \section{Software bootstrap}
-nInitial step was to establish \gls{swd} setup as lowest level critical component, this took longer than anticipated after initial response reading DPIDR register succeeded to verify an \gls{arm} debug unit was responding, but further attempted operations such as memory read failed. Reason for failure transpired to a lack of accounting multiple debug units\cite{raspberrypiltdRaspberryPiPico} with many references to \gls{swd} implementation omitting the step of device selection from the setup sequence owing to most \gls{arm} \gls{mcu}'s only having one core this being an uncessary step.
+nInitial step was to establish \gls{swd} setup as lowest level critical component, this took longer than anticipated after initial response reading DPIDR register succeeded to verify an \gls{arm} debug unit was responding, but further attempted operations such as memory read failed. Reason for failure transpired to a lack of accounting multiple debug units\cite{raspberrypiltdRaspberryPiPico} with many references to \gls{swd} implementation omitting the step of device selection from the setup sequence owing to most \gls{arm} \gls{mcu}'s only having one core this being an unnecessary step.
 
 Once handshake was established the most critical functions of memory write and read were implemented and verified to confirm successful control over \gls{swd}, 
 
@@ -58,7 +58,9 @@ This uses a \gls{magic} and runtime calculated CRC32 checksum for firmware data 
 
 Programming sequence example to bootstrap running code on the target can be found in Appendix 1.
 
-It was determined that 'bit banging' the \gls{swd} bus was sufficiently performant to not need a more complex implementation, the necessary 40kB helper image only takes 51ms to send over the bus which is inconsequential, and for  image upload operations the \gls{spi} flashing process is slower than the data upload  \gls{swd} speed, and most of the difference can be alleviated by using two data transfer locations to allow data upload whilst flashing is progressing in an interleaved write/transfer operation alternating locations.
+It was determined that 'bit banging' the \gls{swd} bus was sufficiently performant to not need a more complex implementation especially once the pico clock speed was increased from default 133MHz to a still stable and frequently used 250MHz.
+
+Transferring the necessary 40kB helper image only takes 51ms to send over the bus which is inconsequential, and for  image upload operations the \gls{spi} flashing process is slower than the data upload  \gls{swd} speed, and most of the difference can be alleviated by using two data transfer locations to allow data upload whilst flashing is progressing in an interleaved write/transfer operation alternating locations.
 
 This was measured to have approximately a 33\% speedup \autoref{table:flashspeed} in flashing versus using a single transfer location and waiting for write to complete before transferring new data.
 
@@ -69,9 +71,9 @@ This was measured to have approximately a 33\% speedup \autoref{table:flashspeed
 	
 	\begin{tabular}{|l|l|}
 		\hline
-		Flashing methodology & time for microPython 1.19 Image  \\ \hline
-		One queued & 5562ms \\ \hline
-		Dual queued interleave & 4154ms \\ \hline
+		Flashing methodology & Time for MicroPython 1.19 Image transfer  \\ \hline
+		Send and wait & 5562ms \\ \hline
+		Dual interleave & 4154ms \\ \hline
 	\end{tabular}
 	\label{table:flashspeed}
 \end{table}
@@ -137,27 +139,27 @@ Figures \autoref{fig:picousbnodata} to \autoref{fig:usb_nodata_picow} show compu
 \begin{figure}[ht]
 	\centering
 	\AltText{File system shown on file system with no image loaded to device}{\includegraphics[width=\textwidth]{usb_nodata_pico}}
-	\caption{Pico USB image loading, no data}
+	\caption{Pico \gls{usb} image loading, no data}
 	\label{fig:picousbnodata}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
 	\AltText{File system shown on file system with an image loaded to device}{\includegraphics[width=\textwidth]{usb_data_pico}}
-	\caption{Pico USB image loading, microPython image loaded}
+	\caption{Pico \gls{usb} image loading, MicroPython image loaded}
 	\label{fig:picousbdata}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
 	\AltText{File system shown on file system with no image loaded to device}{\includegraphics[width=\textwidth]{usb_nodata_picow}}
-	\caption{Pico USB image loading, no data}
+	\caption{Pico \gls{usb} image loading, no data}
 	\label{fig:usb_nodata_picow}
 \end{figure}
 
 \clearpage
 \subsection{Recovery Process}
-Whilst \autoref{fig:disp_startup_empty} to \autoref{fig:disp_fs_recovered} show user interface on device during states of initial empty recovery device, during \gls{usb} firmware loading, and both file system recovery and re imaging target device.
+Whilst figures \autoref{fig:disp_startup_empty} to \autoref{fig:disp_fs_recovered} demonstrate user interface on device at states of initial empty recovery and during \gls{usb} firmware loading, and further both file system recovery and re imaging a target device.
 
 \begin{figure}[ht]
 	\centering
@@ -182,15 +184,15 @@ Whilst \autoref{fig:disp_startup_empty} to \autoref{fig:disp_fs_recovered} show 
 
 \begin{figure}[ht]
 	\centering
-	\AltText{Display showing usb image upload in progress at 58\%}{\includegraphics[width=.7\textwidth]{disp_usbload}}
-	\caption{Display showing usb image upload in progress}
+	\AltText{Display showing USB image upload in progress at 58\%}{\includegraphics[width=.7\textwidth]{disp_usbload}}
+	\caption{Display showing \gls{usb} image upload in progress}
 	\label{fig:disp_usbload}
 \end{figure}
 
 \begin{figure}[ht]
 	\centering
-	\AltText{Display showing usb image having been uploaded}{\includegraphics[width=.7\textwidth]{disp_usbloaded}}
-	\caption{Display showing usb image after successful upload}
+	\AltText{Display showing USB image having been uploaded}{\includegraphics[width=.7\textwidth]{disp_usbloaded}}
+	\caption{Display showing \gls{usb} image after successful upload}
 	\label{fig:disp_usbloaded}
 \end{figure}
 

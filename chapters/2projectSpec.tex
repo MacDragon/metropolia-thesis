@@ -113,9 +113,9 @@ For controlling the \gls{swd} interface there are multiple possible methods to c
 
 So called 'bit banging' \gls{gpio} signals utilising \gls{arm} code to control signal lines via direct access which is effectively entirely non hardware dependant.
 
-Using a programmable I/O module in the Pico which allows a lower level clock accurate control of \gls{gpio} on the device, an example implementation of which available in the official Raspberry Pi Pico debugger PicoProbe\cite{Picoprobe2023} project.
+Using a programmable I/O module in the Pico which allows a lower level clock accurate control of \gls{gpio} on the device, an example implementation of which available in the official Raspberry Pi Pico debugger PicoProbe project\cite{Picoprobe2023}.
 
-It also appears to be potentially possible to utilise \gls{spi} peripheral to perform \gls{swd} transactions, though this was deemed unnecessarily complicated to investigate as a potential solution\cite{OpenOCDRaspberryPi}.
+It is also potentially possible to utilise \gls{spi} peripheral in order to perform \gls{swd} transactions, though this was deemed unnecessarily complicated to investigate as a potential solution\cite{OpenOCDRaspberryPi}.
 
 Due to \gls{swd}'s use of host device clock signal and no tight requirements for it's running, the simpler 'bit banging' was implemented as first proof of concept, setting the pico clock
 \clearpage
