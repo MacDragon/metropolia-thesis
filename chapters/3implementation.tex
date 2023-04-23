@@ -26,12 +26,9 @@ For first testing of compilation environment as initial proof of concept test be
 	\label{fig:InitialPOCwiring}
 \end{figure}
 
-Segger RTT\cite{JLinkRTTReal} is used for debug console access during testing to eliminate need for a seperate UART/Serial receiver and associated wiring.
+Segger RTT library\cite{JLinkRTTReal} is used for debug console access during testing to eliminate need for a separate UART/Serial receiver and associated wiring, simplifying test setup considerably whilst allowing rapid interactive testing. 
 
-In the final test setup a jumper cable is used to simulate the closing of a mounting interface interlock to similate plugging and unplugging target board without physically removing jumper wires from bench setup.
-
-\pagebreak
-This was later expanded to include a Pimoroni display and buttons for a user interface, and second Pi Pico as flashing target \autoref{fig:FullPOCwiring}, with wiring diagram as shown in \autoref{fig:FullPOCwiringDiagram}
+This setup was further expanded upon to include the second Pi Pico target device and a removable interlock wire used to simulate the closing of a mounting interface interlock to enable simulating plugging and unplugging target board without physically removing all wiring between boards on bench setup whilst getting initial communication operable. Once essential functionality for performing recovery operations was implemented the hardware setup was further expanded to include a Pimoroni Display Pack to provide for an end a user interface beyond debug testing, and second Pi Pico as flashing target \autoref{fig:FullPOCwiring}, with wiring diagram as shown in \autoref{fig:FullPOCwiringDiagram}
 
 \begin{figure}[ht]
 	\centering
@@ -48,7 +45,7 @@ This was later expanded to include a Pimoroni display and buttons for a user int
 \end{figure}
 \clearpage
 \section{Software bootstrap}
-nInitial step was to establish \gls{swd} setup as lowest level critical component, this took longer than anticipated after initial response reading DPIDR register succeeded to verify an \gls{arm} debug unit was responding, but further attempted operations such as memory read failed. Reason for failure transpired to a lack of accounting multiple debug units\cite{raspberrypiltdRaspberryPiPico} with many references to \gls{swd} implementation omitting the step of device selection from the setup sequence owing to most \gls{arm} \gls{mcu}'s only having one core this being an unnecessary step.
+InInitial step was to establish \gls{swd} setup as lowest level critical component, this took longer than anticipated after initial response reading DPIDR register succeeded to verify an \gls{arm} debug unit was responding, but further attempted operations such as memory read failed. Reason for failure transpired to a lack of accounting multiple debug units\cite{raspberrypiltdRaspberryPiPico} with many references to \gls{swd} implementation omitting the step of device selection from the setup sequence owing to most \gls{arm} \gls{mcu}'s only having one core this being an unnecessary step.
 
 Once handshake was established the most critical functions of memory write and read were implemented and verified to confirm successful control over \gls{swd}, 
 
