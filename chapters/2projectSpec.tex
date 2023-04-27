@@ -87,7 +87,7 @@ Typical \gls{swd} control speeds range from 4-25MHZ clock, though to achieve hig
 
 Communication with the debug unit is first established with a reset sequence, which will always reset the debug unit to a known starting state so that connection can be established regardless of existing state.
 
-Every transaction consists of a multiple phase process. First a request header to signal read or write a register including contained command validation parity check is clocked out onto the \gls{swd} I/O line, after which the host switches to reading the I/O line and clocks in three bytes to check for an acknowledgement reply indicating whether the request was received, debug unit is busy or can action the request, or if the debug unit is in fault state.
+Every transaction consists of a multiple phase process. First a request header to signal read or write a register including contained command validation parity check is clocked out onto the \gls{swd} I/O line, after which the host switches to reading the I/O line and clocks in three bits to check for an acknowledgement reply indicating whether the request was received, debug unit is busy or can action the request, or if the debug unit is in fault state.
 
 If the acknowledgement is an all OK, then the next action is either clocking in the bus for length of data to read response, or switching back to clocking out the transmitted data packet. In the case of \gls{ap} memory reads, the first data read after a initial read request has to be ignored and discarded to give the debug unit time to retrieve the memory data, thus read cycle will always have an extra throwaway read at the end also.
 
