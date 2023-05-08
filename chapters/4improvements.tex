@@ -1,15 +1,15 @@
 % Project Improvements remaining
 \clearpage%if the chapter heading starts close to bottom of the page, force a line break and remove the vertical vspace
 \vspace{21.5pt}
-\chapter{Summary}
+\chapter{Conclusion}
 
-The project was a success with regard to primary goals, with suitable software solutions to recovering and re-imaging the target board found and implemented to provide a working foundation upon which to build upon, but does not yet provide a full finished package solution.
+The aim of this project was to create a standalone Raspberry Pi Pico recovery platform, able to initialise and recover a target Pi Pico development board to initial usable state or recover a MicroPython installation from a non-accessible or booting startup script. The platform was to be created with a simple to use interface and a standalone method to update recovery images via any computer without utilising additional software.
 
-\section{Improvements and challenges}
+The project was successful with regard to the primary goals, with suitable software solutions to recovering and re-imaging the target board found and implemented to provide a working foundation upon which to build upon. However, the study does not yet provide a full finished package solution.
 
 Whilst the software functionality attained the planned feature set there still remains hardware interface challenges that need to be solved in order to present a fully deployable solution.
 
-Most notably there still needs to be a quick connection interface designed to allow a target board to be quickly attached to the recovery module. Multiple ways of making this connection have been considered, with the location of the debug points on the two board versions limiting the possibilities notably, especially with the Pico W where they are not located at a castellation point making a fully side mounting clip an impossibility.  The most likely potential method to investigate being some form of mounting clip using pogo pins to make contact with at least the debugging connections, and potentially some form of spring clip or pogo pins for the power supply.
+Most notably there still needs to be a quick connection interface designed to allow a target board to be quickly attached to the recovery module. Multiple ways of making this connection have been considered, with the location of the debug points on the two board versions limiting the possibilities notably, especially with the Pico W where they are not located at a castellation point making a fully side mounting clip an impossibility. The most likely potential method to investigate being some form of mounting clip using pogo pins to make contact with at least the debugging connections, and potentially some form of spring clip or pogo pins for the power supply.
 
 The enable pin could be left off design if power source is under direct control, being which could help simplify design further with only one point outside debug connector needed.
 
