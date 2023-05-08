@@ -108,7 +108,7 @@ Each CPU core has it's own debug unit, along with a third 'reset' unit that can 
 
 For controlling the \gls{swd} interface there are two main possible methods to consider. Firstly so called 'bit banging' \gls{gpio} signals utilising \gls{arm} code to control signal lines via direct access which is effectively entirely non hardware dependant. Secondly using a \gls{pio} module in the Pico which would allow a lower level clock accurate control of \gls{gpio} on the device, an example implementation of which available in the official Raspberry Pi Pico debugger PicoProbe project\cite{Picoprobe2023}. It is also potentially possible to utilise \gls{spi} peripheral in order to perform \gls{swd} transactions, though this was deemed unnecessarily complicated to investigate as a potential solution compared to the main methods already discussed.\cite{OpenOCDRaspberryPi}.
 
-Due to \gls{swd}'s use of host device clock signal and no tight timing requirements for it's operation, the simpler software based 'bit banging' was implemented as first proof of concept, which combined with running the pico clock at a technically overclocked but still stable 230 MHz operating speed allowed faster timing in a simple manner opposed to implementing a more complex pio based solution.
+Due to \gls{swd}'s use of host device clock signal and no tight timing requirements for it's operation, the simpler software based 'bit banging' was implemented as first proof of concept, which combined with running the Pico clock at a technically overclocked but still stable 230 MHz operating speed allowed faster timing in a simple manner opposed to implementing a more complex \gls{pio} based solution.
 
 %TODO:  SW based or pio assembly?  DONE
 
@@ -126,7 +126,7 @@ A \gls{uf2} file is composed of a series of 512 byte blocks, each of which consi
 
 The 32 byte header of each block contains necessary information to direct flashing process such as the payloads destination flash address in \gls{rom}, a family code to verify device type the image is meant for, the relative number of current block, and a total block count for complete image.
 
-\gls{uf2} block header also contains a flag field which allow s further optional features in the format, including a checksum for the data and presence of family type instead of file size which is typically used instead of the default file size field, as family field is useful to help prevent incorrect firmware uploads to desce and complete firmware image size being calculable from the stored block count data and assumption of typical payload size. Checksum data is not typically used, and thus not needed to be implemented.
+\gls{uf2} block header also contains a flag field which allow s further optional features in the format, including a checksum for the data and presence of family type instead of file size which is typically used instead of the default file size field, as family field is useful to help prevent incorrect firmware uploads to device and complete firmware image size being calculable from the stored block count data and assumption of typical payload size. Checksum data is not typically used, and thus not needed to be implemented.
 
 This is enough information for flashing software to know where to put each part of image as received, and keep track of progress in order to know full image has been received without an explicit end of transfer or blocks received out of order, which is key to being able to flash images via \gls{usb} \gls{msc} file system write.
 

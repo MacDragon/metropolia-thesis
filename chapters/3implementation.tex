@@ -4,7 +4,7 @@
 \chapter{Implementation}
 \section{Software  setup}
 
-First state of project was getting initial programming environment ready, consisting of rp2040 SDK, Arm GCC cross compiler and Visual Studio Code\autoref{fig:vscode} with plugins for debugging and managing the rp2040 CMAKE build process, and a j-link SWD debugger to program and debug on the \gls{mcu} more flexibly than \gls{usb} UF2 flash programming. A logic analyser was also used in initial phases to help monitor the debug traffic for verification of handshake operations till communication was established between boards.
+First state of project was getting initial programming environment ready, consisting of rp2040 SDK, Arm GCC cross compiler and Visual Studio Code \autoref{fig:vscode} with plugins for debugging and managing the rp2040 CMAKE build process, and a j-link SWD debugger to program and debug on the \gls{mcu} more flexibly than \gls{usb} UF2 flash programming. A logic analyser was also used in initial phases to help monitor the debug traffic for verification of handshake operations till communication was established between boards.
 
 \begin{figure}[ht]
 	\centering
@@ -55,7 +55,7 @@ This uses a \gls{magic} and runtime calculated CRC32 checksum for firmware data 
 
 Programming sequence example to bootstrap running code on the target can be found in Appendix 1.
 
-It was determined that 'bit banging' the \gls{swd} bus was sufficiently performant to not need a more complex implementation especially once the pico clock speed was increased from default 133MHz to a still stable and frequently used 250MHz.
+It was determined that 'bit banging' the \gls{swd} bus was sufficiently performant to not need a more complex implementation especially once the Pico clock speed was increased from default 133MHz to a still stable and frequently used 250MHz.
 
 Transferring the necessary 40kB helper image only takes 51ms to send over the bus which is inconsequential, and for  image upload operations the \gls{spi} flashing process is slower than the data upload  \gls{swd} speed, and most of the difference can be alleviated by using two data transfer locations to allow data upload whilst flashing is progressing in an interleaved write/transfer operation alternating locations.
 
@@ -80,13 +80,13 @@ To take control of target board, debug unit is first initialised to the rescue u
 \clearpage
 \section{File system implementation}
 
-Due to the large amounts of repeated information and empty space within a UF2 format file direct storage into the pico's flash was impractical, especially with the effective requirement to store separate images for standard pico and W variations, which added together can reach a size bigger than the whole flash storage.
+Due to the large amounts of repeated information and empty space within a UF2 format file direct storage into the Pico's flash was impractical, especially with the effective requirement to store separate images for standard Pico and W variations, which added together can reach a size bigger than the whole flash storage.
 
 To enable maximum practical storage a more compact storage solution was implemented, consisting of three data areas for the UF2 image.
 
 Laid out as follows: Data area, consisting of all the 256byte data packets from each UF2 block, An address area, indexing each of these data packets to their destination address and finally a header block where the filename, and other related metadata such as block count are stored. UF2 block /gls{crc} values were not stored and recalculated at runtime. Though a single checksum of all the data should still be added for verification before start of flashing.
 
-Due to the requirement to store two images, there are two of these data structures kept, with the W one allocated the bulk of the storage to allow for the wireless module firmware and drivers taking up notably more storage than the regular pico as presented in table \ref{table:file_storage}:
+Due to the requirement to store two images, there are two of these data structures kept, with the W one allocated the bulk of the storage to allow for the wireless module firmware and drivers taking up notably more storage than the regular Pico as presented in table \ref{table:file_storage}:
 
 \begin{table}[h]
 	\centering
@@ -127,7 +127,7 @@ First tests consisted of setting up recovery scenarios on MicroPython via Thonny
 
 Second tests verified that a populated file system could be wiped on an existing MicroPython install.
 
-Third tests verified loading of different UF2 firmware files to the recovery platform, and then re imaging a target pico with the loaded firmware.
+Third tests verified loading of different UF2 firmware files to the recovery platform, and then re imaging a target Pico with the loaded firmware.
 
 \clearpage
 \subsection{USB Loading}
