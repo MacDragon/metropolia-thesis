@@ -60,7 +60,7 @@ This is a \gls{usb} compact hardware debugger for embedded platforms to provide 
 \clearpage
 \section{Ways to access Raspberry Pi Pico flash}
 
-There are a couple of potential ways to be able to access the flash memory on the pico to be able to alter or reflash it as desired, with the most common and usually used method for uploading software images performed by holding down the 'BOOTSEL' button when plugging the Pi into \gls{usb}, which disabled the \gls{qspi} flash memory chip select line temporarily during boot process and causes the \gls{mcu} to automatically go into flashing mode whereupon the chip presents a virtual fat drive as a mass storage device to the \gls{usb} host allowing an image to be dragged on and flashed.
+There are a couple of potential ways to be able to access the flash memory on the Pico to be able to alter or reflash it as desired, with the most common and usually used method for uploading software images performed by holding down the 'BOOTSEL' button when plugging the Pi into \gls{usb}, which disabled the \gls{qspi} flash memory chip select line temporarily during boot process and causes the \gls{mcu} to automatically go into flashing mode whereupon the chip presents a virtual fat drive as a mass storage device to the \gls{usb} host allowing an image to be dragged on and flashed.
 
 Whilst there is a standard \gls{spi} protocol for accessing flash modules, this is limited to 24 bit addressing over a single \gls{spi} lane which limits default \gls{rom} access to a maximum of 16 Megabytes at slow speeds. In order to allow larger module sizes and faster operation speeds \gls{qspi} is supported, which allows 4 bit parallel data transfer for fast operation, but due to lack of standardisation for initialising and accessing these modules in full address space and speed custom initialisation code is needed per device.
 
@@ -70,9 +70,9 @@ In order to allow the inbuilt hardcoded Pi Pico \gls{rom} bootloader to be able 
 
 This method could be used to run a \gls{ram} resident program via specific UF2 loading addresses which could be used to examine the flash memory and run an automatic recovery of a filesystem from MicroPython without affecting the primary flashed application.
 
-But this method is cumbersome, as it cannot be fully automated due to the requirement of manual BOOTSEL enablement to enable whilst plugging in. There are ways to enter recovery mode without pressing BOOTSEL via \gls{usb} interface using picotool application that can make negotiate a pico running firmwares based on standard \gls{usb} stack to reboot into recovery mode\cite{picotool}, but this is inflexible and would not help recovering an application that immediately disables USB automatically at boot which is one of the primary requirements of the project.
+But this method is cumbersome, as it cannot be fully automated due to the requirement of manual BOOTSEL enablement to enable whilst plugging in. There are ways to enter recovery mode without pressing BOOTSEL via \gls{usb} interface using picotool application that can make negotiate a Pico running firmwares based on standard \gls{usb} stack to reboot into recovery mode\cite{picotool}, but this is inflexible and would not help recovering an application that immediately disables USB automatically at boot which is one of the primary requirements of the project.
 
-The other principle method of being able to arbitrarily access flash memory on pico is via the \gls{arm} \gls{swd} debug interface using the board accessible debug pads intended for direct programming and onchip debugging\cite{ARMDebugInterface}.
+The other principle method of being able to arbitrarily access flash memory on Pico is via the \gls{arm} \gls{swd} debug interface using the board accessible debug pads intended for direct programming and onchip debugging\cite{ARMDebugInterface}.
 
 The \gls{swd} interface  is always available regardless of firmware setup, and allows full control of the chip thus making it possible to fully automate. The principle disadvantage of this approach is the less convenient physical access to the interface compared to connecting to a \gls{usb} host.
 \clearpage
@@ -81,7 +81,7 @@ The \gls{arm} \gls{swd} interface is an \gls{arm} microdevices created standard 
 
 Typical \gls{swd} control speeds range from 4-25MHz clock, though to achieve high clock rates typically seperate hardware such a \gls{fpga} programmed for dedicated signal control is used. However, due to the debugger controlled clock, timing is not critical and can be flexible allowing a more simplistic 'bit banging' approach to be used from any GPIO interface, though more refined methods utilising peripheral hardware inside an \gls{mcu} can be possible, such as \gls{spi} controller, or in the case of the Pi Pico there is a relatively unique {\gls{pio} hardware interface that can be utilised for \gls{swd} as utilised in the Raspberry Pi Foundations Pi Pico based debug probe.
 
-\gls{pio} is in effect a pair of smaller very simple tertiary sub processor modules on the pico that run state machines dedicated to \gls{gpio} processing. \gls{pio} state machines are written using a proprietary Assembly language that allow custom protocols to be implemented in a flexible way with tight hardware timing without the inconvenience of processor interrupts. That makes achieving such processing with a tightly controlled timing almost impossible with software controlled \gls{gpio} outside all but the simplest control systems.
+\gls{pio} is in effect a pair of smaller very simple tertiary sub processor modules on the Pico that run state machines dedicated to \gls{gpio} processing. \gls{pio} state machines are written using a proprietary Assembly language that allow custom protocols to be implemented in a flexible way with tight hardware timing without the inconvenience of processor interrupts. That makes achieving such processing with a tightly controlled timing almost impossible with software controlled \gls{gpio} outside all but the simplest control systems.
 
 %TODO  Maybe a few words about pio assembly here? DONE
 
@@ -130,7 +130,7 @@ The 32 byte header of each block contains necessary information to direct flashi
 
 This is enough information for flashing software to know where to put each part of image as received, and keep track of progress in order to know full image has been received without an explicit end of transfer or blocks received out of order, which is key to being able to flash images via \gls{usb} \gls{msc} file system write.
 
-The format was chosen by the Pi foundation as the native image format for the pico due to this simplicity of use, and the pico recovery bootloader presents a \gls{usb} mass storage virtual \gls{fat} file system from its \gls{rom} stored 16kB alongside \gls{usb} stack and \gls{rom} callable routines for functionality including \gls{spi} flashrom writing. When reading in an image the bootloader uses the target address of the image to signify whether to load the data into ram for immediate execution, or to flash and execute from \gls{qspi}.
+The format was chosen by the Pi foundation as the native image format for the Pico due to this simplicity of use, and the Pico recovery bootloader presents a \gls{usb} mass storage virtual \gls{fat} file system from its \gls{rom} stored 16kB alongside \gls{usb} stack and \gls{rom} callable routines for functionality including \gls{spi} flashrom writing. When reading in an image the bootloader uses the target address of the image to signify whether to load the data into ram for immediate execution, or to flash and execute from \gls{qspi}.
 
 \begin{table}[h]
 	\centering
